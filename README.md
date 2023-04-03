@@ -38,7 +38,7 @@ To use the Monthly Expenses Calculator Shiny App, you will need to have R and RS
 https://sabrinahuajy.shinyapps.io/monthly-expense-calculator/
 
 ## Illustration
-<img src="//userfs/jh1493/w2k/Desktop/R/Monthly-Expense-Calculator/Capture.PNG" alt="screenshot of webpage interface">
+<img src="https://github.com/SabrinaHuajy/Monthly-Expense-Calculator/blob/main/Capture.PNG" alt="screenshot of webpage interface">
 
 
 ## Usage
