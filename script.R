@@ -3,31 +3,66 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
+# Define UI
 ui <- fluidPage(
+
+    # App title
     titlePanel("Monthly Expenses Calculator"),
+
+    # Sidebar layout
     sidebarLayout(
+
+        # Sidebar panel
         sidebarPanel(
+
+            # Select month input
             selectInput("month", "Select month:", choices = month.name),
+
+            # Expenses input fields
             numericInput("rent", "Rent/mortgage payment:", value = 0, min = 0),
             numericInput("utilities", "Utilities:", value = 0, min = 0),
             numericInput("groceries", "Groceries:", value = 0, min = 0),
             numericInput("transportation", "Transportation:", value = 0, min = 0),
             numericInput("entertainment", "Entertainment:", value = 0, min = 0),
-            actionButton("submit", "Submit"),
-            actionButton("reset", "Reset")
+
+            # Submit and Reset buttons
+            fluidRow(
+                column(6, offset = 3,
+                       actionButton("submit", "Submit", class = "btn-primary")
+                )
+            ),
+            br(),
+            fluidRow(
+                column(6, offset = 3,
+                       actionButton("reset", "Reset", class = "btn-outline-secondary")
+                )
+            )
         ),
+
+        # Main panel
         mainPanel(
+
+            # Total monthly expenses
             h4("Monthly Expenses:"),
-            verbatimTextOutput("total"),
-            plotOutput("expenses_plot"),
+            div(style = "text-align: center; font-size: 2em; font-weight: bold; color: #482A5A",
+                textOutput("total")),
+
+            # Bar plot of monthly expenses breakdown
+            plotOutput("expenses_plot", height = "300px"),
+
+            # Table of monthly expenses by category
             tableOutput("expenses_table")
         )
     )
 )
 
+# Define server
 server <- function(input, output, session) {
+
+    # Reactive value to store expenses data
     expenses <- reactiveVal(data.frame(month = character(), rent = numeric(), utilities = numeric(), groceries = numeric(), transportation = numeric(), entertainment = numeric()))
 
+    # Update expenses data on submit button click
     observeEvent(input$submit, {
         new_row <- data.frame(
             month = input$month,
@@ -43,15 +78,18 @@ server <- function(input, output, session) {
         expenses(expenses_data)
     })
 
+    # Reset expenses data on reset button click
     observeEvent(input$reset, {
         expenses(data.frame(month = character(), rent = numeric(), utilities = numeric(), groceries = numeric(), transportation = numeric(), entertainment = numeric()))
     })
 
+    # Render total monthly expenses
     output$total <- renderText({
         expenses_sum <- sum(expenses() %>% select(-month) %>% unlist())
         paste("£", round(expenses_sum, 2))
     })
 
+    # Render bar plot of monthly expenses breakdown
     output$expenses_plot <- renderPlot({
         expenses_melted <- expenses() %>%
             pivot_longer(cols = rent:entertainment, names_to = "category", values_to = "expenses") %>%
