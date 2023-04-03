@@ -19,7 +19,7 @@ The Monthly Expenses Calculator Shiny App is a simple tool that allows users to 
   - [Requirements](#requirements)
   - [Deployed Website](#deployed-website)
   - [Illustration](#illustration)
-  - [Usage](#usage)
+  - [Instructions](#instructions)
   - [License](#license)
   - [Contributions](#contributions)
   - [Tests](#tests)
@@ -42,7 +42,7 @@ https://sabrinahuajy.shinyapps.io/monthly-expense-calculator/
 <img src="https://github.com/SabrinaHuajy/Monthly-Expense-Calculator/blob/main/Capture.PNG" alt="screenshot of webpage interface">
 
 
-## Usage
+## Instructions 
 To use the Monthly Expenses Calculator Shiny App, follow these steps:
 
 <ol>
