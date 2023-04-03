@@ -1,80 +1,76 @@
 library(shiny)
+library(dplyr)
+library(tidyr)
 library(ggplot2)
 
-# Define UI
 ui <- fluidPage(
-    titlePanel("Monthly Expense Calculator"),
+    titlePanel("Monthly Expenses Calculator"),
     sidebarLayout(
         sidebarPanel(
-            numericInput("income", "Monthly Income:", value = 0, min = 0),
-            numericInput("rent", "Rent/Mortgage:", value = 0, min = 0),
+            selectInput("month", "Select month:", choices = month.name),
+            numericInput("rent", "Rent/mortgage payment:", value = 0, min = 0),
             numericInput("utilities", "Utilities:", value = 0, min = 0),
-            numericInput("food", "Food/Groceries:", value = 0, min = 0),
+            numericInput("groceries", "Groceries:", value = 0, min = 0),
             numericInput("transportation", "Transportation:", value = 0, min = 0),
             numericInput("entertainment", "Entertainment:", value = 0, min = 0),
-            selectInput("month", "Select Month:", choices = month.name, selected = month.name[1]),
-            actionButton("add_expenses", "Add Expenses"),
+            actionButton("submit", "Submit"),
             actionButton("reset", "Reset")
         ),
         mainPanel(
-            h4("Monthly Summary:"),
-            verbatimTextOutput("summary"),
-            plotOutput("expenses_chart")
+            h4("Monthly Expenses:"),
+            verbatimTextOutput("total"),
+            plotOutput("expenses_plot"),
+            tableOutput("expenses_table")
         )
     )
 )
 
-# Define server
-server <- function(input, output) {
+server <- function(input, output, session) {
+    expenses <- reactiveVal(data.frame(month = character(), rent = numeric(), utilities = numeric(), groceries = numeric(), transportation = numeric(), entertainment = numeric()))
 
-    # Initialize data frame to store expenses
-    expenses_data <- reactiveValues(data = data.frame(month = character(),
-                                                      rent = numeric(),
-                                                      utilities = numeric(),
-                                                      food = numeric(),
-                                                      transportation = numeric(),
-                                                      entertainment = numeric()))
-
-    # Calculate total expenses
-    expenses <- reactive({
-        input$rent + input$utilities + input$food + input$transportation + input$entertainment
+    observeEvent(input$submit, {
+        new_row <- data.frame(
+            month = input$month,
+            rent = input$rent,
+            utilities = input$utilities,
+            groceries = input$groceries,
+            transportation = input$transportation,
+            entertainment = input$entertainment
+        )
+        expenses_data <- expenses()
+        expenses_data <- bind_rows(expenses_data, new_row)
+        expenses_data <- expenses_data %>% arrange(month)
+        expenses(expenses_data)
     })
 
-    # Calculate amount left over
-    left_over <- reactive({
-        input$income - expenses()
-    })
-
-    # Output summary
-    output$summary <- renderText({
-        paste("Total Income: $", input$income, "\n",
-              "Total Expenses: $", expenses(), "\n",
-              "Amount Left Over: $", left_over())
-    })
-
-    # Add expenses for selected month
-    observeEvent(input$add_expenses, {
-        expenses_data$data[nrow(expenses_data$data) + 1, ] <- list(input$month, input$rent, input$utilities, input$food, input$transportation, input$entertainment)
-    })
-
-    # Reset expenses
     observeEvent(input$reset, {
-        expenses_data$data <- data.frame(month = character(),
-                                         rent = numeric(),
-                                         utilities = numeric(),
-                                         food = numeric(),
-                                         transportation = numeric(),
-                                         entertainment = numeric())
+        expenses(data.frame(month = character(), rent = numeric(), utilities = numeric(), groceries = numeric(), transportation = numeric(), entertainment = numeric()))
     })
 
-    # Plot total expenses over time
-    output$expenses_chart <- renderPlot({
-        ggplot(data = expenses_data$data, aes(x = month)) +
-            geom_col(aes(y = rent, fill = "Rent/Mortgage"), width = 0.7) +
-            geom_col(aes(y = utilities, fill = "Utilities"), width = 0.7) +
-            geom_col(aes(y = food, fill = "Food/Groceries"), width = 0.7) +
-            geom_col(aes(y = transportation, fill = "Transportation"), width = 0.7) +
-            geom_col(aes(y = entertainment, fill = "Entertainment"), width = 0.7) +
-            labs(x = "Month", y = "Total Expenses", title = "Total Expenses Over Time") +
-            scale_x_discrete(limits = month.name, expand = c(0, 0)) +
-            scale_fill_manual(values = c("red", "green", "blue", "orange", "purple"),
+    output$total <- renderText({
+        expenses_sum <- sum(expenses() %>% select(-month) %>% unlist())
+        paste("£", round(expenses_sum, 2))
+    })
+
+    output$expenses_plot <- renderPlot({
+        expenses_melted <- expenses() %>%
+            pivot_longer(cols = rent:entertainment, names_to = "category", values_to = "expenses") %>%
+            mutate(month = factor(month, levels = month.name))
+        ggplot(expenses_melted, aes(x = month, y = expenses, fill = category)) +
+            geom_col() +
+            labs(x = "Month", y = "Expenses", title = "Monthly Expenses Breakdown") +
+            scale_fill_manual(values = c("#ffb3ba", "#ffdfba", "#ffffba", "#baffc9", "#bae1ff")) +
+            theme_minimal()
+    })
+
+    output$expenses_table <- renderTable({
+        expenses() %>%
+            pivot_longer(cols = rent:entertainment, names_to = "category", values_to = "expenses") %>%
+            select(month, category, expenses) %>%
+            group_by(month, category) %>%
+            summarise(expenses = sum(expenses)) %>%
+            pivot_wider(names_from = category, values_from = expenses)
+    })
+}
+
+shinyApp(ui = ui, server = server)
