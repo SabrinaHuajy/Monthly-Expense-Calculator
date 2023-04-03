@@ -1,4 +1,7 @@
 # Monthly-Expense-Calculator-Shiny-App
+
+MIT<br>[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 R shiny App  for a monthly expenses calculator. 
 
 Built by Sabrina Hua with the help from Matt Dancho's R-blogger post and AI assistance from chatgpt
@@ -16,7 +19,8 @@ The Monthly Expenses Calculator Shiny App is a simple tool that allows users to 
   - [Description](#description)
   - [Table of contents](#table-of-contents)
   - [Requirements](#requirements)
-  - [Installation](#installation)
+  - [Deployed Website](#deployed-website)
+  - [Illustration](#illustration)
   - [Usage](#usage)
   - [License](#license)
   - [Contributions](#contributions)
@@ -30,16 +34,12 @@ To use the Monthly Expenses Calculator Shiny App, you will need to have R and RS
     * tidyr
     * ggplot2
 
-## Installation
-To install the Monthly Expenses Calculator Shiny App, follow these steps:
+## Deployed Website
+https://sabrinahuajy.shinyapps.io/monthly-expense-calculator/
 
-<ol>
-    <li> Download the app.R file from this repository.</li>
-    <li> Open RStudio and navigate to the directory where you saved the script.R file.</li>
-    <li> Run the following command to launch the app:</li>
-</ol>
+## Illustration
+<img src="//userfs/jh1493/w2k/Desktop/R/Monthly-Expense-Calculator/Capture.PNG" alt="screenshot of webpage interface">
 
-shiny::runApp("script.R")
 
 ## Usage
 To use the Monthly Expenses Calculator Shiny App, follow these steps:
